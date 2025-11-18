@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if(loggedIn){
         context.go(MyRoutes.home);
       }else{
-        context.go(MyRoutes.home);
+        context.go(MyRoutes.login);
       }
     });
   }

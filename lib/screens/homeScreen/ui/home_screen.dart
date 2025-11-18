@@ -58,6 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
           childAspectRatio: 0.95, // adjust height
           children: [
             buildInOutCard(
+              onTap: (){context.push(MyRoutes.inScreen);},
               context,
               title: "IN",
               colors: [
@@ -67,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icons.login_rounded,
             ),
             buildInOutCard(
+              onTap: (){context.push(MyRoutes.outScreen);},
               context,
               title: "OUT",
               colors: [
@@ -86,9 +88,10 @@ class _HomeScreenState extends State<HomeScreen> {
         required String title,
         required List<Color> colors,
         required IconData icon,
+        required Function onTap
       }) {
     return InkWell(
-      onTap: () => context.push(MyRoutes.login),
+      onTap: () => onTap(),
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

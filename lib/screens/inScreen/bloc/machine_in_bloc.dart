@@ -1,4 +1,8 @@
 import 'package:bloc/bloc.dart';
+import 'package:inventory_management/config/constant.dart';
+import 'package:inventory_management/models/employee_model.dart';
+import 'package:inventory_management/models/product_model_response.dart';
+import 'package:inventory_management/repository/machine_in_out_repo.dart';
 import 'package:meta/meta.dart';
 
 part 'machine_in_event.dart';
@@ -6,27 +10,23 @@ part 'machine_in_state.dart';
 
 
 class MachineInBloc extends Bloc<MachineInEvent, MachineInState> {
-  final MachineInRepository repository;
+  final MachineInOutRepo repository= MachineInOutRepo();
 
-  MachineInBloc(this.repository) : super(MachineInState.initial()) {
-    on<LoadEmployeesEvent>(_loadEmployees);
-    on<ChangeCategoryEvent>(_changeCategory);
-    on<ChangeStateFilterEvent>(_changeStateFilter);
+  MachineInBloc() : super(MachineInState.initial()) {
+    on<ProductLoadEvent>(_loadProduct);
+
   }
 
-  Future<void> _loadEmployees(
-      LoadEmployeesEvent event, Emitter<MachineInState> emit) async {
+  Future<void> _loadProduct(
+      ProductLoadEvent event, Emitter<MachineInState> emit) async {
     emit(state.copyWith(isLoading: true));
 
     try {
-      final employees = await repository.fetchEmployees(
-        category: state.selectedCategory,
-        state: state.selectedState,
-      );
+      final product = await repository.productApi();
 
       emit(state.copyWith(
         isLoading: false,
-        employees: employees,
+        productModelResponse: product,
         error: null,
       ));
     } catch (e) {
@@ -37,15 +37,5 @@ class MachineInBloc extends Bloc<MachineInEvent, MachineInState> {
     }
   }
 
-  void _changeCategory(
-      ChangeCategoryEvent event, Emitter<MachineInState> emit) {
-    emit(state.copyWith(selectedCategory: event.category));
-    add(LoadEmployeesEvent());
-  }
 
-  void _changeStateFilter(
-      ChangeStateFilterEvent event, Emitter<MachineInState> emit) {
-    emit(state.copyWith(selectedState: event.state));
-    add(LoadEmployeesEvent());
-  }
 }

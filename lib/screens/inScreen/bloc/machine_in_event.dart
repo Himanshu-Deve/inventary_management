@@ -1,10 +1,9 @@
 part of 'machine_in_bloc.dart';
 
-enum EmployeeCategory { sh, tl, bde }
 
 abstract class MachineInEvent {}
 
-class LoadEmployeesEvent extends MachineInEvent {}
+class ProductLoadEvent extends MachineInEvent {}
 
 class ChangeCategoryEvent extends MachineInEvent {
   final EmployeeCategory category;

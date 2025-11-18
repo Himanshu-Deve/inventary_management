@@ -21,6 +21,9 @@ dependencies:
   pinput: ^5.0.2
   shared_preferences: ^2.2.2
   dio: ^5.9.0
+  mobile_scanner: ^3.5.0
+  vibration: ^1.8.4
+  dropdown_button2: ^2.3.9
 
 dev_dependencies:
   flutter_test:

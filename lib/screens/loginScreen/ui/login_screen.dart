@@ -85,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               MyPrimaryTextField(
                                 controller: _usernameController,
                                 hintText: "Enter User Number",
-                                keyboardType: TextInputType.phone,
+                                keyboardType: TextInputType.name,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter your phone number';

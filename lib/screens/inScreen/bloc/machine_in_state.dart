@@ -1,6 +1,7 @@
 part of 'machine_in_bloc.dart';
 
 class MachineInState {
+  final ProductModelResponse productModelResponse;
   final EmployeeCategory selectedCategory;
   final String selectedState;
   final bool isLoading;
@@ -8,6 +9,7 @@ class MachineInState {
   final String? error;
 
   MachineInState({
+    required this.productModelResponse,
     required this.selectedCategory,
     required this.selectedState,
     required this.isLoading,
@@ -17,6 +19,7 @@ class MachineInState {
 
   factory MachineInState.initial() {
     return MachineInState(
+      productModelResponse: ProductModelResponse(),
       selectedCategory: EmployeeCategory.sh,
       selectedState: "All",
       isLoading: false,
@@ -25,6 +28,7 @@ class MachineInState {
   }
 
   MachineInState copyWith({
+    ProductModelResponse? productModelResponse,
     EmployeeCategory? selectedCategory,
     String? selectedState,
     bool? isLoading,
@@ -32,6 +36,7 @@ class MachineInState {
     String? error,
   }) {
     return MachineInState(
+      productModelResponse: productModelResponse ?? this.productModelResponse,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       selectedState: selectedState ?? this.selectedState,
       isLoading: isLoading ?? this.isLoading,
