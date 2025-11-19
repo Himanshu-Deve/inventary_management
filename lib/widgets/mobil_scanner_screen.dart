@@ -70,7 +70,7 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
           Center(
             child: Container(
               width: MediaQuery.of(context).size.width*0.9,
-              height: MediaQuery.of(context).size.width*0.7,
+              height: 360,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.blueAccent, width: 3),
                 borderRadius: BorderRadius.circular(12),
