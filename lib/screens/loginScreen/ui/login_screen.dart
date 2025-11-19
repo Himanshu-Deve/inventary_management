@@ -84,13 +84,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             children: [
                               MyPrimaryTextField(
                                 controller: _usernameController,
-                                hintText: "Enter User Number",
-                                keyboardType: TextInputType.phone,
+                                hintText: "Enter User Name",
+                                keyboardType: TextInputType.name,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please enter your phone number';
-                                  } else if (value.length != 10) {
-                                    return 'Enter a valid 10-digit number';
+                                    return 'Please enter Name';
                                   }
                                   return null;
                                 },
@@ -175,13 +173,11 @@ class _LoginScreenState extends State<LoginScreen> {
                              children: [
                                MyPrimaryTextField(
                                  controller: _usernameController,
-                                 hintText: "Enter User Number",
+                                 hintText: "Enter User Name",
                                  keyboardType: TextInputType.name,
                                  validator: (value) {
                                    if (value == null || value.isEmpty) {
-                                     return 'Please enter your phone number';
-                                   } else if (value.length != 10) {
-                                     return 'Enter a valid 10-digit number';
+                                     return 'Please enter Name';
                                    }
                                    return null;
                                  },
