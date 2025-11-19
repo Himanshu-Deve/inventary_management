@@ -24,6 +24,14 @@ dependencies:
   mobile_scanner: ^3.5.0
   vibration: ^1.8.4
   dropdown_button2: ^2.3.9
+  connectivity_plus: ^6.0.3
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/homeAssets/logo.png"
+
 
 dev_dependencies:
   flutter_test:

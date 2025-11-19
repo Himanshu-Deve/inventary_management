@@ -13,6 +13,7 @@ class MachineOutState {
 
   final String searchQuery;
 
+  final String? saveSuccess;
   final String? error;
 
   MachineOutState({
@@ -23,6 +24,7 @@ class MachineOutState {
     required this.originalUsers,
     required this.allUsers,
     required this.searchQuery,
+    this.saveSuccess,
     this.error,
   });
 
@@ -35,6 +37,7 @@ class MachineOutState {
       originalUsers: [],
       allUsers: [],
       searchQuery: "",
+      saveSuccess: null,
       error: null,
     );
   }
@@ -47,6 +50,7 @@ class MachineOutState {
     List<UsersData>? originalUsers,
     List<UsersData>? allUsers,
     String? searchQuery,
+    String? saveSuccess,
     String? error,
   }) {
     return MachineOutState(
@@ -57,6 +61,7 @@ class MachineOutState {
       originalUsers: originalUsers ?? this.originalUsers,
       allUsers: allUsers ?? this.allUsers,
       searchQuery: searchQuery ?? this.searchQuery,
+      saveSuccess: saveSuccess,
       error: error,
     );
   }

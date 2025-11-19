@@ -5,15 +5,15 @@ class MachineInState {
   final EmployeeCategory selectedCategory;
   final String selectedState;
   final bool isLoading;
-  final List<EmployeeModel> employees;
+  final String? saveSuccess;
   final String? error;
 
   MachineInState({
     required this.productModelResponse,
     required this.selectedCategory,
     required this.selectedState,
+    this.saveSuccess,
     required this.isLoading,
-    required this.employees,
     this.error,
   });
 
@@ -23,7 +23,6 @@ class MachineInState {
       selectedCategory: EmployeeCategory.sh,
       selectedState: "All",
       isLoading: false,
-      employees: [],
     );
   }
 
@@ -32,7 +31,7 @@ class MachineInState {
     EmployeeCategory? selectedCategory,
     String? selectedState,
     bool? isLoading,
-    List<EmployeeModel>? employees,
+    String? saveSuccess,
     String? error,
   }) {
     return MachineInState(
@@ -40,7 +39,7 @@ class MachineInState {
       selectedCategory: selectedCategory ?? this.selectedCategory,
       selectedState: selectedState ?? this.selectedState,
       isLoading: isLoading ?? this.isLoading,
-      employees: employees ?? this.employees,
+      saveSuccess: saveSuccess?? this.saveSuccess,
       error: error,
     );
   }

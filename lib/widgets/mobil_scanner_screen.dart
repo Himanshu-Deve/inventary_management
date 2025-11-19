@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inventory_management/navigator/my_routes.dart';
+import 'package:inventory_management/screens/inScreen/bloc/machine_in_bloc.dart';
+import 'package:inventory_management/screens/outScreen/bloc/machine_out_bloc.dart';
 import 'package:inventory_management/widgets/my_primary_button.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:vibration/vibration.dart';
@@ -131,6 +133,10 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
                         "onRemove": (String value) {
                           setState(() => scannedList.remove(value));
                         },
+                        "userId":widget.userId,
+                        "bloc":widget.bloc,
+                        "isNew":widget.isNew,
+                        "isMachineIn":widget.isMachineIn,
                       },
                     );
                   },
@@ -146,7 +152,7 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
                 right: 0,
                 child: MyPrimaryButton(
                     margin: EdgeInsets.symmetric(horizontal: 20),
-                    text: "Back To Machine In", onPressed: () => context.pop()))
+                    text: "Back To Machine In/Out", onPressed: () => context.pop()))
         ],
       ),
     );
@@ -154,14 +160,20 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
 }
 
 class ScanListingScreen extends StatefulWidget {
+  final bloc;
   final int? selectId;
+  final bool? isNew;
   final List<String> list;
+  final int? userId;
   final Function(String) onRemove;
 
   const ScanListingScreen({
     super.key,
+    required this.bloc,
     required this.list,
     required this.onRemove,
+    this.userId,
+    this.isNew,
     this.selectId,
   });
 
@@ -233,8 +245,33 @@ class _ScanListingScreenState extends State<ScanListingScreen> {
         child: MyPrimaryButton(
           text: "Submit",
           width: double.infinity,
-          onPressed: () {
-            // Handle submit logic here
+          onPressed: ()async {
+            if(widget.userId!=null && widget.isNew==true) {
+              final items=widget.list;
+              await widget.bloc.add(SaveDataOutEvent(userId: widget.userId??0,item: items));
+            }else if(widget.userId==null && widget.isNew==false){
+                final items = widget.list;
+                await widget.bloc.add(SaveDataInExistEvent(items: items));
+            }else{
+              final baseItem = {
+                "part": widget.selectId,
+                "quantity": 1,
+                "location": 7,
+                "status": 10,
+                "purchase_price_currency": "INR",
+                };
+
+              final items = widget.list.map((serial) {
+                return {
+                  ...baseItem,      // copy all fields
+                  "serial": serial, // replace serial only
+                };
+              }).toList();
+
+              await widget.bloc.add(SaveDataInNewEvent(items: items));
+            }
+            widget.list.clear();
+            setState(() {});
           },
         ),
       ),

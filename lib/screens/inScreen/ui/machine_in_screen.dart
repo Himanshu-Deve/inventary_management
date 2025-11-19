@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inventory_management/navigator/my_routes.dart';
+import 'package:inventory_management/utils/app_utils.dart';
 import 'package:inventory_management/widgets/mobil_scanner_screen.dart';
 import 'package:inventory_management/widgets/my_primary_button.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -82,7 +83,10 @@ class _ProductDropdownScreenState extends State<ProductDropdownScreen> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: BlocBuilder<MachineInBloc, MachineInState>(
+        child: BlocConsumer<MachineInBloc, MachineInState>(
+          listener: (context , state )async{
+
+          },
           bloc: widget.bloc,
           builder: (context, state) {
             if (state.isLoading) {

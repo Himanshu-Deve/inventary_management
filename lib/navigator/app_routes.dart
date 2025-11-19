@@ -57,7 +57,7 @@ class AppRoutes {
               isMachineIn: data['isMachineIn'] as bool,
               bloc: data["bloc"] as MachineOutBloc,
               isNew: data["isNew"] as bool,
-              userId: data['user_id'] as int,
+              userId: data['userId'] as int,
               number: data['number'] as String,
             );
           }),
@@ -66,10 +66,18 @@ class AppRoutes {
         builder: (context, state) {
           final data = state.extra as Map<String, dynamic>;
 
-          return ScanListingScreen(
+          return data['isMachineIn']?  ScanListingScreen(
             list: data["list"] as List<String>,
             onRemove: data["onRemove"] as Function(String),
             selectId: data['selectId'],
+            isNew: data["isNew"] as bool,
+            bloc: data["bloc"] as MachineInBloc,
+          ):ScanListingScreen(
+            list: data["list"] as List<String>,
+            onRemove: data["onRemove"] as Function(String),
+            isNew: data["isNew"] as bool,
+            bloc: data["bloc"] as MachineOutBloc,
+            userId: data['userId'] as int,
           );
         },
       ),

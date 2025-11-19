@@ -14,6 +14,7 @@ class MachineOutBloc extends Bloc<MachineOutEvent, MachineOutState> {
     on<LoadEmployeesOutEvent>(_loadUsers);
     on<SearchUserOutEvent>(_localSearch);
     on<ChangeStateOutEvent>(_changeState);
+    on<SaveDataOutEvent>(_saveData);
   }
 
   // LOAD STATES ONLY ONCE
@@ -86,4 +87,34 @@ class MachineOutBloc extends Bloc<MachineOutEvent, MachineOutState> {
 
     add(LoadEmployeesOutEvent());
   }
+
+
+  Future<void> _saveData(
+      SaveDataOutEvent event, Emitter<MachineOutState> emit) async {
+    emit(state.copyWith(isLoading: true));
+    try {
+      final location = await repo.getUserLocations(userId:  event.userId);
+      final product = await repo.bulkTransferBySerial(serials: event.item,location:location.location?.id??0);
+      if(product['success']==true && ((product['failed_count']??0)<0)) {
+        emit(state.copyWith(
+          isLoading: false,
+          saveSuccess:  "Successfully Added",
+          error: null,
+        ));
+      }else{
+        emit(state.copyWith(
+          isLoading: false,
+          saveSuccess:"Successfully Added But these are Already in Inventary ${product['failed_serials']}",
+          error: null,
+        ));
+      }
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      ));
+    }
+  }
+
+
 }

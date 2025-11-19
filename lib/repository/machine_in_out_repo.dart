@@ -1,5 +1,8 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:inventory_management/models/inventree_in_model_response.dart';
+import 'package:inventory_management/models/inventree_out_model_response.dart';
+import 'package:inventory_management/models/location_model_response.dart';
 import 'package:inventory_management/models/product_model_response.dart';
 import 'package:inventory_management/models/state_model_response.dart';
 import 'package:inventory_management/models/users_response_model.dart';
@@ -100,7 +103,159 @@ class MachineInOutRepo {
     }
   }
 
+  Future<LocationModelResponse> getUserLocations({
+    required int userId,
+  }) async {
+    try {
+      final headers = _dio.options.headers.map(
+            (key, value) => MapEntry(key, value.toString()),
+      );
 
+      ApiClient.printCurl(
+        '${_dio.options.baseUrl}/inventree/user/$userId/location/',
+        {},
+        headers,
+      );
+
+      final response = await _dio.get(
+        '/inventree/user/$userId/location/',
+        options: Options(
+          headers: {
+            "Content-Type": "application/json",
+            // If needed:
+            // "Cookie": "csrftoken=XXX",
+          },
+        ),
+      );
+
+      AppUtils.showSuccess("User locations fetched!");
+
+      return LocationModelResponse.fromJson(response.data);
+    } on DioError catch (e) {
+      final msg = _handleDioError(e);
+      AppUtils.showError(msg);
+      throw Exception(msg);
+    } catch (e) {
+      AppUtils.showError(e.toString());
+      throw Exception(e.toString());
+    }
+  }
+
+
+  // create and post api
+
+  Future<Map<String,dynamic>> createInventreeStock({
+    required List<Map<String, dynamic>> items,
+  }) async {
+    try {
+      final headers = _dio.options.headers.map(
+            (key, value) => MapEntry(key, value.toString()),
+      );
+
+      ApiClient.printCurl(
+        '${_dio.options.baseUrl}/inventree/stock/create/',
+        {"items": items},
+        headers,
+      );
+
+      final response = await _dio.post(
+        '/inventree/stock/create/',
+        data: {
+          "items": items,
+        },
+        options: Options(
+          headers: {
+            "Content-Type": "application/json",
+          },
+        ),
+      );
+
+      AppUtils.showSuccess("Stock Created Successfully!");
+
+      return response.data;
+    } on DioError catch (e) {
+      final errorMessage = _handleDioError(e);
+      AppUtils.showError(errorMessage);
+      throw Exception(errorMessage);
+    } catch (e) {
+      AppUtils.showError(e.toString());
+      throw Exception(e.toString());
+    }
+  }Future<Map<String, dynamic>> bulkTransferBySerial({
+    required List<String> serials,
+    required num location,
+    String? notes,
+  }) async {
+    try {
+      // Clean and validate serials
+      final cleanedSerials = _cleanAndValidateSerials(serials);
+
+      if (cleanedSerials.isEmpty) {
+        throw Exception("No valid serial numbers provided");
+      }
+
+      // Safe header conversion
+      final headers = Map<String, String>.fromEntries(
+        _dio.options.headers.entries.map(
+              (entry) => MapEntry(entry.key, entry.value?.toString() ?? ''),
+        ),
+      );
+
+      // Print curl before making the request for debugging
+      ApiClient.printCurl(
+        '${_dio.options.baseUrl}/inventree/stock/bulk-transfer-by-serial/',
+        {
+          "serials": cleanedSerials,
+          "location": location,
+          "notes": notes,
+        },
+        headers,
+      );
+
+      final response = await _dio.post(
+        '/inventree/stock/bulk-transfer-by-serial/',
+        data: {
+          "serials": cleanedSerials,
+          "location": location,
+          "notes": notes,
+        },
+        options: Options(
+          headers: {
+            "Content-Type": "application/json",
+          },
+        ),
+      );
+
+      // Validate response
+      if (response.data == null) {
+        throw Exception("Empty response from server");
+      }
+
+      final responseData = response.data;
+      if (responseData is! Map<String, dynamic>) {
+        throw Exception("Invalid response format");
+      }
+
+      AppUtils.showSuccess("Bulk Transfer Successful!");
+      return responseData;
+    } on DioException catch (e) {
+      final msg = _handleDioError(e);
+      AppUtils.showError(msg);
+      throw Exception(msg);
+    } catch (e) {
+      AppUtils.showError(e.toString());
+      throw Exception(e.toString());
+    }
+  }
+
+// Helper method to clean and validate serials
+  List<String> _cleanAndValidateSerials(List<String> serials) {
+    return serials
+        .map((serial) => serial.trim()) // Remove whitespace
+        .where((serial) => serial.isNotEmpty) // Remove empty strings
+        .where((serial) => serial != 'null') // Remove 'null' strings
+        .toList();
+  }
   /// Helper to parse DioError
   String _handleDioError(DioError error) {
     if (error.response != null && error.response?.data != null) {

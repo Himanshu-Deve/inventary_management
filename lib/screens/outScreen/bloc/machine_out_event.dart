@@ -9,6 +9,12 @@ class LoadEmployeesOutEvent extends MachineOutEvent {
   LoadEmployeesOutEvent({this.loadMore = false});
 }
 
+class SaveDataOutEvent extends MachineOutEvent {
+  final int userId;
+  final List<String> item;
+  SaveDataOutEvent({required this.userId, required this.item});
+}
+
 class SearchUserOutEvent extends MachineOutEvent {
   final String query;
   SearchUserOutEvent(this.query);

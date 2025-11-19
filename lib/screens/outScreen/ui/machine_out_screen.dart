@@ -27,7 +27,7 @@ class _MachineOutScreenState extends State<MachineOutScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Machine Out"),
+        title: const Text("Machine OUT"),
       ),
       body: _EmployeeBody(bloc: bloc),
     );
@@ -145,7 +145,6 @@ class _EmployeeBodyState extends State<_EmployeeBody> {
               if (state.isLoading && state.allUsers.isEmpty) {
                 return const Center(child: CircularProgressIndicator());
               }
-
               if (state.error != null) {
                 return Center(child: Text("Error: ${state.error}"));
               }
@@ -166,7 +165,7 @@ class _EmployeeBodyState extends State<_EmployeeBody> {
                         extra: {
                           "bloc": bloc,
                           "isNew": true,
-                          "user_id": u.id,
+                          "userId": u.id,
                           "number": u.mobileNo,
                           "isMachineIn": false
                         },
