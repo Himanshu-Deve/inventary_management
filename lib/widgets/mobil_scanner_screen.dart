@@ -6,7 +6,6 @@ import 'package:inventory_management/screens/outScreen/bloc/machine_out_bloc.dar
 import 'package:inventory_management/widgets/my_primary_button.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:vibration/vibration.dart';
-
 class MachineScannerScreen extends StatefulWidget {
   final bloc;
   final bool isMachineIn;
@@ -15,8 +14,15 @@ class MachineScannerScreen extends StatefulWidget {
   final int? userId;
   final String? number;
 
-  const MachineScannerScreen(
-      {super.key, required this.bloc, required this.isMachineIn,this.isNew = false,this.number="",this.userId=0,this.selectProduct});
+  const MachineScannerScreen({
+    super.key,
+    required this.bloc,
+    required this.isMachineIn,
+    this.isNew = false,
+    this.number = "",
+    this.userId = 0,
+    this.selectProduct,
+  });
 
   @override
   State<MachineScannerScreen> createState() => _MachineScannerScreenState();
@@ -24,14 +30,16 @@ class MachineScannerScreen extends StatefulWidget {
 
 class _MachineScannerScreenState extends State<MachineScannerScreen> {
   final MobileScannerController controller = MobileScannerController(
-      detectionSpeed: DetectionSpeed.noDuplicates,
-      facing: CameraFacing.back,
-      torchEnabled: false,
+    detectionSpeed: DetectionSpeed.noDuplicates,
+    facing: CameraFacing.back,
+    torchEnabled: false,
   );
-  bool torchOn = false;
 
+  bool torchOn = false;
   final List<String> scannedList = [];
   bool isProcessing = false;
+
+  double zoomValue = 0.0; // 🔍 added
 
   @override
   Widget build(BuildContext context) {
@@ -39,37 +47,58 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          /// CAMERA SCANNER
+          /// CAMERA VIEW
           MobileScanner(
             controller: controller,
             onDetect: (capture) async {
               if (isProcessing) return;
               isProcessing = true;
 
-              final code = capture.barcodes.first.rawValue;
-              if (code != null) {
-                /// Add to list
-                if (!scannedList.contains(code)) {
-                  setState(() => scannedList.add(code));
+              final barcodes = capture.barcodes;
 
-                  /// Vibrate device
+              String? finalCode;
+
+              // PRIORITY 1 → BARCODE (code128, ean13, code39, upc, etc.)
+              for (final b in barcodes) {
+                if (b.format != BarcodeFormat.qrCode && b.rawValue != null) {
+                  finalCode = b.rawValue;
+                  break;
+                }
+              }
+
+              // PRIORITY 2 → QR CODE (only if no barcode found)
+              if (finalCode == null) {
+                for (final b in barcodes) {
+                  if (b.format != BarcodeFormat.qrCode && b.rawValue != null) {
+                    finalCode = b.rawValue;
+                    break;
+                  }
+                }
+              }
+
+              // If STILL null → nothing detected properly
+              if (finalCode != null) {
+                if (!scannedList.contains(finalCode)) {
+                  setState(() => scannedList.add(finalCode??""));
+
                   if (await Vibration.hasVibrator() ?? false) {
                     Vibration.vibrate(duration: 200);
                   }
 
-                  debugPrint("SCANNED: $code");
+                  debugPrint("SCANNED (Priority Applied): $finalCode");
                 }
               }
 
               await Future.delayed(const Duration(milliseconds: 600));
               isProcessing = false;
             },
+
           ),
 
-          /// BLUE SCAN BOX
+          /// BLUE BOX
           Center(
             child: Container(
-              width: MediaQuery.of(context).size.width*0.9,
+              width: MediaQuery.of(context).size.width * 0.9,
               height: 360,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.blueAccent, width: 3),
@@ -78,14 +107,13 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
             ),
           ),
 
-          /// BOTTOM BUTTONS
+          /// TOP BUTTONS
           Positioned(
             top: (widget.isNew ?? false) ? 100 : 10,
             left: 0,
             right: 0,
             child: Column(
               children: [
-                /// Torch + Scan Text + Camera Switch
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -106,8 +134,8 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
-                      textAlign: TextAlign.center,
                     ),
+
                     IconButton(
                       color: Colors.white,
                       iconSize: 30,
@@ -134,14 +162,14 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
                       MyRoutes.scanListingScreen,
                       extra: {
                         "list": scannedList,
-                        "selectId":widget.selectProduct,
+                        "selectId": widget.selectProduct,
                         "onRemove": (String value) {
                           setState(() => scannedList.remove(value));
                         },
-                        "userId":widget.userId,
-                        "bloc":widget.bloc,
-                        "isNew":widget.isNew,
-                        "isMachineIn":widget.isMachineIn,
+                        "userId": widget.userId,
+                        "bloc": widget.bloc,
+                        "isNew": widget.isNew,
+                        "isMachineIn": widget.isMachineIn,
                       },
                     );
                   },
@@ -150,14 +178,56 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
               ],
             ),
           ),
-          if(widget.isNew??false)
+
+          /// 🔍 ZOOM SLIDER (bottom)
+          Positioned(
+            bottom: widget.isNew ?? false ? 170 : 40,
+            left: 20,
+            right: 20,
+            child: Card(
+              color: Colors.white.withOpacity(0.15),
+              elevation: 6,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "Zoom",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Slider(
+                      min: 0.0,
+                      max: 1.0,
+                      activeColor: Colors.blueAccent,
+                      inactiveColor: Colors.white38,
+                      value: zoomValue,
+                      onChanged: (value) {
+                        setState(() => zoomValue = value);
+                        controller.setZoomScale(value); // 🔍 apply zoom
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          /// BACK BUTTON WHEN isNew = TRUE
+          if (widget.isNew ?? false)
             Positioned(
-                bottom: 100,
-                left: 0,
-                right: 0,
-                child: MyPrimaryButton(
-                    margin: EdgeInsets.symmetric(horizontal: 20),
-                    text: "Back To Machine In/Out", onPressed: () => context.pop()))
+              bottom: 100,
+              left: 0,
+              right: 0,
+              child: MyPrimaryButton(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                text: "Back To Machine In/Out",
+                onPressed: () => context.pop(),
+              ),
+            ),
         ],
       ),
     );
