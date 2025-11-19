@@ -19,9 +19,10 @@ class LoginScreenBloc extends Bloc<LoginScreenEvent, LoginScreenState> {
       if(res==true) {
         emit(LoginSuccess());
       }else{
+        emit(LoginScreenInitial());
       }
     } catch (e) {
-      emit(LoginError('Failed to send OTP'));
+      emit(LoginScreenInitial());
     }
   }
 }

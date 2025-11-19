@@ -93,12 +93,12 @@ class MachineOutBloc extends Bloc<MachineOutEvent, MachineOutState> {
       SaveDataOutEvent event, Emitter<MachineOutState> emit) async {
     emit(state.copyWith(isLoading: true));
     try {
-      final location = await repo.getUserLocations(userId:  event.userId);
-      final product = await repo.bulkTransferBySerial(serials: event.item,location:location.location?.id??0);
+      final location = await repo.getUserLocations(userId: event.userId);
+      final product = await repo.bulkTransferBySerial(serials: event.item,location:location.location?.id??0,notes:"OUT Source" );
       if(product['success']==true && ((product['failed_count']??0)<0)) {
         emit(state.copyWith(
           isLoading: false,
-          saveSuccess:  "Successfully Added",
+          saveSuccess: "Successfully Added",
           error: null,
         ));
       }else{

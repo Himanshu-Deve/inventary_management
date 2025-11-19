@@ -65,7 +65,7 @@ class MachineInBloc extends Bloc<MachineInEvent, MachineInState> {
     emit(state.copyWith(isLoading: true));
 
     try {
-      final product = await repository.bulkTransferBySerial(serials: event.items,location:7,notes: "");
+      final product = await repository.bulkTransferBySerial(serials:event.item,location:7,notes: "IN Source");
      if(product['success']==true && (product['failed_count']==0)) {
        emit(state.copyWith(
          isLoading: false,

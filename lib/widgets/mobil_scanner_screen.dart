@@ -23,7 +23,11 @@ class MachineScannerScreen extends StatefulWidget {
 }
 
 class _MachineScannerScreenState extends State<MachineScannerScreen> {
-  final MobileScannerController controller = MobileScannerController();
+  final MobileScannerController controller = MobileScannerController(
+      detectionSpeed: DetectionSpeed.noDuplicates,
+      facing: CameraFacing.back,
+      torchEnabled: false,
+  );
   bool torchOn = false;
 
   final List<String> scannedList = [];
@@ -65,8 +69,8 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
           /// BLUE SCAN BOX
           Center(
             child: Container(
-              width: 260,
-              height: 260,
+              width: MediaQuery.of(context).size.width*0.9,
+              height: MediaQuery.of(context).size.width*0.7,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.blueAccent, width: 3),
                 borderRadius: BorderRadius.circular(12),
@@ -94,6 +98,7 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
                         setState(() => torchOn = !torchOn);
                       },
                     ),
+
                     Text(
                       "Scanned: ${scannedList.length}",
                       style: const TextStyle(
@@ -247,11 +252,15 @@ class _ScanListingScreenState extends State<ScanListingScreen> {
           width: double.infinity,
           onPressed: ()async {
             if(widget.userId!=null && widget.isNew==true) {
-              final items=widget.list;
+              final items = widget.list.map((serial) {
+                return serial;
+              }).toList();
               await widget.bloc.add(SaveDataOutEvent(userId: widget.userId??0,item: items));
             }else if(widget.userId==null && widget.isNew==false){
-                final items = widget.list;
-                await widget.bloc.add(SaveDataInExistEvent(items: items));
+              final items = widget.list.map((serial) {
+                return serial;
+              }).toList();
+                await widget.bloc.add(SaveDataInExistEvent(item: items));
             }else{
               final baseItem = {
                 "part": widget.selectId,

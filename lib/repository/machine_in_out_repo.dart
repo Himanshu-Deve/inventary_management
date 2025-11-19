@@ -181,18 +181,16 @@ class MachineInOutRepo {
       AppUtils.showError(e.toString());
       throw Exception(e.toString());
     }
-  }Future<Map<String, dynamic>> bulkTransferBySerial({
+  }
+
+
+  Future<Map<String, dynamic>> bulkTransferBySerial({
     required List<String> serials,
     required num location,
     String? notes,
   }) async {
     try {
-      // Clean and validate serials
-      final cleanedSerials = _cleanAndValidateSerials(serials);
 
-      if (cleanedSerials.isEmpty) {
-        throw Exception("No valid serial numbers provided");
-      }
 
       // Safe header conversion
       final headers = Map<String, String>.fromEntries(
@@ -205,7 +203,7 @@ class MachineInOutRepo {
       ApiClient.printCurl(
         '${_dio.options.baseUrl}/inventree/stock/bulk-transfer-by-serial/',
         {
-          "serials": cleanedSerials,
+          "serials": serials,
           "location": location,
           "notes": notes,
         },
@@ -215,7 +213,7 @@ class MachineInOutRepo {
       final response = await _dio.post(
         '/inventree/stock/bulk-transfer-by-serial/',
         data: {
-          "serials": cleanedSerials,
+          "serials": serials,
           "location": location,
           "notes": notes,
         },

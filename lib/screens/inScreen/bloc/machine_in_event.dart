@@ -5,8 +5,8 @@ abstract class MachineInEvent {}
 
 class ProductLoadEvent extends MachineInEvent {}
 class SaveDataInExistEvent extends MachineInEvent {
-  List<String> items;
-  SaveDataInExistEvent({required this.items});
+  final List<String> item;
+  SaveDataInExistEvent({required this.item});
 }
 class SaveDataInNewEvent extends MachineInEvent {
   final List<Map<String, Object?>> items;
