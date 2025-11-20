@@ -112,13 +112,13 @@ class MachineInOutRepo {
       );
 
       ApiClient.printCurl(
-        '${_dio.options.baseUrl}/inventree/user/$userId/location/',
+        '${_dio.options.baseUrl}/inventree/user/$userId/intransit-location/',
         {},
         headers,
       );
 
       final response = await _dio.get(
-        '/inventree/user/$userId/location/',
+        '/inventree/user/$userId/intransit-location/',
         options: Options(
           headers: {
             "Content-Type": "application/json",

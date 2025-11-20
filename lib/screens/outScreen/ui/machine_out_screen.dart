@@ -51,12 +51,12 @@ class _EmployeeBodyState extends State<_EmployeeBody> {
   void initState() {
     super.initState();
     bloc = widget.bloc;
-   widget.bloc.add(LoadEmployeesOutEvent());
 
   }
 
   @override
   Widget build(BuildContext context) {
+   bloc.add(LoadEmployeesOutEvent());
     return Column(
       children: [
         const SizedBox(height: 16),

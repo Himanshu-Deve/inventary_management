@@ -6,6 +6,128 @@ import 'package:inventory_management/screens/outScreen/bloc/machine_out_bloc.dar
 import 'package:inventory_management/widgets/my_primary_button.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:vibration/vibration.dart';
+
+import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+
+class CustomScannerView extends StatefulWidget {
+  final Function(String code) onDetect;
+  final bool isNew;
+
+  const CustomScannerView({super.key, required this.onDetect,required this.isNew});
+
+  @override
+  State<CustomScannerView> createState() => _CustomScannerViewState();
+}
+
+class _CustomScannerViewState extends State<CustomScannerView> {
+  final MobileScannerController controller = MobileScannerController(
+    detectionSpeed: DetectionSpeed.noDuplicates,
+    facing: CameraFacing.back,
+    torchEnabled: false,
+  );
+
+  double zoomValue = 0.0;
+  Offset? tapPosition;
+
+  bool isProcessing = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        /// CAMERA PREVIEW + TAP FOCUS
+        GestureDetector(
+          onTapDown: (details) {
+            setState(() => tapPosition = details.localPosition);
+
+            /// 🔍 Tap-to-focus simulation using zoom
+            controller.setZoomScale(0.5);
+            Future.delayed(const Duration(milliseconds: 500), () {
+              controller.setZoomScale(zoomValue);
+            });
+          },
+          child: MobileScanner(
+            controller: controller,
+            onDetect: (capture) async {
+              if (isProcessing) return;
+              isProcessing = true;
+
+              String? finalCode;
+              final barcodes = capture.barcodes;
+
+              /// PRIORITY 1 → ALL NON-QR BARCODES
+              for (final b in barcodes) {
+                if (b.format != BarcodeFormat.qrCode && b.rawValue != null) {
+                  finalCode = b.rawValue;
+                  break;
+                }
+              }
+
+              /// PRIORITY 2 → QR CODE (if nothing found)
+              finalCode ??= barcodes
+                  .where((b) => b.rawValue != null)
+                  .map((e) => e.rawValue!)
+                  .firstOrNull;
+
+              if (finalCode != null) {
+                widget.onDetect(finalCode);
+              }
+
+              await Future.delayed(const Duration(milliseconds: 600));
+              isProcessing = false;
+            },
+          ),
+        ),
+
+        /// TAP FOCUS CIRCLE INDICATOR
+        if (tapPosition != null)
+          Positioned(
+            left: tapPosition!.dx - 20,
+            top: tapPosition!.dy - 20,
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.blueAccent, width: 2),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+
+        /// ZOOM SLIDER UI
+        Positioned(
+          bottom: widget.isNew ?? false ? 170 : 40,
+          left: 20,
+          right: 20,
+          child: Card(
+            color: Colors.white.withOpacity(0.2),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text("Zoom", style: TextStyle(color: Colors.white)),
+                  Slider(
+                    min: 0.0,
+                    max: 1.0,
+                    value: zoomValue,
+                    onChanged: (v) {
+                      setState(() => zoomValue = v);
+                      controller.setZoomScale(v);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+
 class MachineScannerScreen extends StatefulWidget {
   final bloc;
   final bool isMachineIn;
@@ -48,45 +170,18 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
       body: Stack(
         children: [
           /// CAMERA VIEW
-          MobileScanner(
-            controller: controller,
+          CustomScannerView(
+            isNew:widget.isNew??false,
             onDetect: (capture) async {
-              if (isProcessing) return;
-              isProcessing = true;
-
-              final barcodes = capture.barcodes;
-
-              String? finalCode;
-
-              // PRIORITY 1 → BARCODE (code128, ean13, code39, upc, etc.)
-              for (final b in barcodes) {
-                if (b.format != BarcodeFormat.qrCode && b.rawValue != null) {
-                  finalCode = b.rawValue;
-                  break;
-                }
-              }
-
-              // PRIORITY 2 → QR CODE (only if no barcode found)
-              if (finalCode == null) {
-                for (final b in barcodes) {
-                  if (b.format != BarcodeFormat.qrCode && b.rawValue != null) {
-                    finalCode = b.rawValue;
-                    break;
-                  }
-                }
-              }
-
               // If STILL null → nothing detected properly
-              if (finalCode != null) {
-                if (!scannedList.contains(finalCode)) {
-                  setState(() => scannedList.add(finalCode??""));
+              if (!scannedList.contains(capture)) {
+                setState(() => scannedList.add(capture));
 
-                  if (await Vibration.hasVibrator() ?? false) {
-                    Vibration.vibrate(duration: 200);
-                  }
-
-                  debugPrint("SCANNED (Priority Applied): $finalCode");
+                if (await Vibration.hasVibrator() ?? false) {
+                  Vibration.vibrate(duration: 150);
                 }
+
+                debugPrint("SCANNED CODE: $capture");
               }
 
               await Future.delayed(const Duration(milliseconds: 600));
@@ -180,42 +275,6 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
             ),
           ),
 
-          /// 🔍 ZOOM SLIDER (bottom)
-          Positioned(
-            bottom: widget.isNew ?? false ? 170 : 40,
-            left: 20,
-            right: 20,
-            child: Card(
-              color: Colors.white.withOpacity(0.15),
-              elevation: 6,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      "Zoom",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Slider(
-                      min: 0.0,
-                      max: 1.0,
-                      activeColor: Colors.blueAccent,
-                      inactiveColor: Colors.white38,
-                      value: zoomValue,
-                      onChanged: (value) {
-                        setState(() => zoomValue = value);
-                        controller.setZoomScale(value); // 🔍 apply zoom
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
 
           /// BACK BUTTON WHEN isNew = TRUE
           if (widget.isNew ?? false)
