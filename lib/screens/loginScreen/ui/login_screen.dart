@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Enter your phone number to receive an OTP',
+                          'Enter your Name & Password to receive access',
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: Colors.grey[600],
@@ -158,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                          ),
                          const SizedBox(height: 8),
                          Text(
-                           'Enter your phone number to receive an OTP',
+                           'Enter your Name & Password to receive access',
                            textAlign: TextAlign.center,
                            style: theme.textTheme.bodyMedium?.copyWith(
                              color: Colors.grey[600],
