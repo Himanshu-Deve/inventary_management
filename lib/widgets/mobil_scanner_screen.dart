@@ -98,8 +98,9 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
           /// BLUE BOX
           Center(
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.9,
-              height: 360,
+              margin: EdgeInsets.symmetric(horizontal: 20),
+              width: double.infinity,
+              height: 100,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.blueAccent, width: 3),
                 borderRadius: BorderRadius.circular(12),
