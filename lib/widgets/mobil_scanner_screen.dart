@@ -13,19 +13,16 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 class CustomScannerView extends StatefulWidget {
   final Function(String code) onDetect;
   final bool isNew;
+  final MobileScannerController controller;
 
-  const CustomScannerView({super.key, required this.onDetect,required this.isNew});
+  const CustomScannerView({super.key, required this.controller, required this.onDetect,required this.isNew});
 
   @override
   State<CustomScannerView> createState() => _CustomScannerViewState();
 }
 
 class _CustomScannerViewState extends State<CustomScannerView> {
-  final MobileScannerController controller = MobileScannerController(
-    detectionSpeed: DetectionSpeed.noDuplicates,
-    facing: CameraFacing.back,
-    torchEnabled: false,
-  );
+  MobileScannerController get controller => widget.controller;
 
   double zoomValue = 0.0;
   Offset? tapPosition;
@@ -171,6 +168,7 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
         children: [
           /// CAMERA VIEW
           CustomScannerView(
+            controller: controller,
             isNew:widget.isNew??false,
             onDetect: (capture) async {
               // If STILL null → nothing detected properly
