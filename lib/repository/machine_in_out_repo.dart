@@ -26,9 +26,9 @@ class MachineInOutRepo {
       );
 
       final res = await _dio.get('/inventree/parts/?offset=0&limit=30');
-
-      AppUtils.showSuccess("Data Fetched Successfully!");
-
+      if(res.statusCode==200||res.statusCode==201){
+        AppUtils.showSuccess("Data Fetched Successfully!");
+      }
       return ProductModelResponse.fromJson(res.data);
 
     } on DioError catch (e) {
@@ -87,9 +87,9 @@ class MachineInOutRepo {
       final res = await _dio.get(
           state!=null?'/inventree/users/?state_id=$state&offset=$page&limit=1000':'/inventree/users/?offset=$page&limit=1000'
       );
-
-      AppUtils.showSuccess("User Fetched Successfully!");
-
+      if(res.statusCode==200||res.statusCode==201){
+        AppUtils.showSuccess("User Fetched Successfully!");
+      }
       return UsersResponseModel.fromJson(res.data);
     }
     on DioError catch (e) {
@@ -128,8 +128,9 @@ class MachineInOutRepo {
         ),
       );
 
-      AppUtils.showSuccess("User locations fetched!");
-
+      if(response.statusCode==200||response.statusCode==201){
+        AppUtils.showSuccess("User locations fetched!");
+      }
       return LocationModelResponse.fromJson(response.data);
     } on DioError catch (e) {
       final msg = _handleDioError(e);
@@ -169,9 +170,9 @@ class MachineInOutRepo {
           },
         ),
       );
-
-      AppUtils.showSuccess("Stock Created Successfully!");
-
+      if(response.statusCode==200||response.statusCode==201){
+        AppUtils.showSuccess("Stock Created Successfully!");
+      }
       return response.data;
     } on DioError catch (e) {
       final errorMessage = _handleDioError(e);
@@ -233,8 +234,9 @@ class MachineInOutRepo {
       if (responseData is! Map<String, dynamic>) {
         throw Exception("Invalid response format");
       }
-
-      AppUtils.showSuccess("Bulk Transfer Successful!");
+      if(response.statusCode==200||response.statusCode==201){
+        AppUtils.showSuccess("Bulk Transfer Successful!");
+      }
       return responseData;
     } on DioException catch (e) {
       final msg = _handleDioError(e);
