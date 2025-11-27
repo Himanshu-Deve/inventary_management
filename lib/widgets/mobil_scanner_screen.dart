@@ -1,13 +1,11 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inventory_management/navigator/my_routes.dart';
-import 'package:inventory_management/screens/inScreen/bloc/machine_in_bloc.dart';
-import 'package:inventory_management/screens/outScreen/bloc/machine_out_bloc.dart';
 import 'package:inventory_management/widgets/my_primary_button.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:vibration/vibration.dart';
-
-import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class CustomScannerView extends StatefulWidget {
@@ -154,7 +152,14 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
     torchEnabled: false,
   );
 
-  bool torchOn = false;
+  @override
+  void dispose() {
+    // ✅ Release camera resources when leaving the screen
+    controller.dispose();
+    super.dispose();
+  }
+
+    bool torchOn = false;
   final List<String> scannedList = [];
   bool isProcessing = false;
 
@@ -287,130 +292,6 @@ class _MachineScannerScreenState extends State<MachineScannerScreen> {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class ScanListingScreen extends StatefulWidget {
-  final bloc;
-  final int? selectId;
-  final bool? isNew;
-  final List<String> list;
-  final int? userId;
-  final Function(String) onRemove;
-
-  const ScanListingScreen({
-    super.key,
-    required this.bloc,
-    required this.list,
-    required this.onRemove,
-    this.userId,
-    this.isNew,
-    this.selectId,
-  });
-
-  @override
-  State<ScanListingScreen> createState() => _ScanListingScreenState();
-}
-
-class _ScanListingScreenState extends State<ScanListingScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Scanned Devices",
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ),
-
-      /// BODY
-      body: widget.list.isEmpty
-          ? const Center(
-        child: Text(
-          "No items scanned yet",
-          style: TextStyle(fontSize: 16, color: Colors.grey),
-        ),
-      )
-          : ListView.separated(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-        itemCount: widget.list.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final item = widget.list[index];
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade300),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade200,
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                )
-              ],
-            ),
-            child: ListTile(
-              title: Text(
-                item,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () {
-                  widget.onRemove(item);
-                  setState(() {});
-                },
-              ),
-            ),
-          );
-        },
-      ),
-
-      /// SUBMIT BUTTON FIXED AT BOTTOM
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 30),
-        child: MyPrimaryButton(
-          text: "Submit",
-          width: double.infinity,
-          onPressed: ()async {
-            if(widget.userId!=null && widget.isNew==true) {
-              final items = widget.list.map((serial) {
-                return serial;
-              }).toList();
-              await widget.bloc.add(SaveDataOutEvent(userId: widget.userId??0,item: items));
-            }else if(widget.userId==null && widget.isNew==false){
-              final items = widget.list.map((serial) {
-                return serial;
-              }).toList();
-                await widget.bloc.add(SaveDataInExistEvent(item: items));
-            }else{
-              final baseItem = {
-                "part": widget.selectId,
-                "quantity": 1,
-                "location": 7,
-                "status": 10,
-                "purchase_price_currency": "INR",
-                };
-
-              final items = widget.list.map((serial) {
-                return {
-                  ...baseItem,      // copy all fields
-                  "serial": serial, // replace serial only
-                };
-              }).toList();
-
-              await widget.bloc.add(SaveDataInNewEvent(items: items));
-            }
-            widget.list.clear();
-            setState(() {});
-          },
-        ),
       ),
     );
   }

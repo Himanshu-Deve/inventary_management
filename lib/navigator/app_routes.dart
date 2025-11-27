@@ -13,6 +13,7 @@ import 'package:inventory_management/screens/loginScreen/ui/login_screen.dart';
 import 'package:inventory_management/screens/outScreen/bloc/machine_out_bloc.dart';
 import 'package:inventory_management/screens/outScreen/ui/machine_out_screen.dart';
 import 'package:inventory_management/widgets/mobil_scanner_screen.dart';
+import 'package:inventory_management/widgets/scanner_listing.dart';
 
 class AppRoutes {
   static final GoRouter router = GoRouter(
